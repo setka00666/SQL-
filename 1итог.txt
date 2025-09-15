@@ -1,0 +1,49 @@
+1  Написать SQL запрос, который выведет код и наименование всех опций,
+ стоимость которых более 900, в порядке возрастания цены.
+
+ответ:
+select o.code, o.name
+from option o
+join option_price o_ on o.code = o_.option_code
+where o_.price > 900
+order by o_.price 
+
+2 Написать SQL запрос, который выведет количество клиентов, наименование которых начинается на ООО
+
+ответ:
+select count(*) as "кол-во клиентов"
+from client
+where name::text like 'ООО%'
+
+3 Написать SQL запрос, который выведет наименование и ИНН клиентов, 
+у которых подключена опция «Маркетплейс»
+
+ответ:
+select c.name, c.inn
+from client c
+join (select *
+	from client_option
+	where option_code = 'MARKETPLACE') q on c.inn= q.client_inn
+
+4 Написать SQL запрос, который выведет наименование и ИНН клиентов в первой колонке с названием «Клиент (ИНН)»
+ в формате: ООО «Росинка» (8394119283), во второй колонке с названием «Сумма за обслуживание» сумму,
+ которую клиент платит за обслуживание тарифа (price из таблицы tariff), а также за все подключенные опции 
+(price из таблицы option_price
+
+ответ:
+select c.name || ' ' || '(' || c.inn || ')', (q.sum_option + t.price)
+from client c
+join (select co.client_inn, sum(op.price) as sum_option
+	from client_option co 
+	join option_price op on co.option_code = op.option_code
+	group by co.client_inn) q on c.inn = q.client_inn
+join tariff t on c.tariff_code = t.code
+
+5 Написать SQL запрос на добавление записи в таблицу client:
+       Наименование: ООО «Крылатые качели»
+       ИНН: 8823710320
+       Тариф: Стартовый
+
+ответ:
+insert into client (name, inn, tariff_code)
+values ('ООО «Крылатые качели',8823710320,'СТАРТОВЫЙ')
